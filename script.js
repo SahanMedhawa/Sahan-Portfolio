@@ -16,6 +16,134 @@ document.addEventListener('DOMContentLoaded', () => {
         return nameRegex.test(name);
     }
 
+    // ========== Dark/Light Mode Toggle ==========
+    const themeToggle = document.getElementById('themeToggle');
+    const root = document.documentElement;
+    
+    // Check for saved theme preference or system preference
+    function getPreferredTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            return savedTheme;
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    
+    // Apply theme
+    function applyTheme(theme) {
+        root.setAttribute('data-theme', theme);
+        themeToggle.checked = theme === 'dark';
+        localStorage.setItem('theme', theme);
+    }
+    
+    // Initialize theme
+    applyTheme(getPreferredTheme());
+    
+    // Toggle theme on checkbox change
+    themeToggle.addEventListener('change', () => {
+        const newTheme = themeToggle.checked ? 'dark' : 'light';
+        applyTheme(newTheme);
+    });
+    
+    // Listen for system theme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+            applyTheme(e.matches ? 'dark' : 'light');
+        }
+    });
+
+    // ========== Copy Button Functionality ==========
+    const copyButtons = document.querySelectorAll('.copy-btn');
+    
+    copyButtons.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const textToCopy = btn.getAttribute('data-copy');
+            
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                
+                // Visual feedback
+                const icon = btn.querySelector('i');
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+                btn.classList.add('copied');
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-copy');
+                    btn.classList.remove('copied');
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = textToCopy;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const icon = btn.querySelector('i');
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-copy');
+                    btn.classList.remove('copied');
+                }, 2000);
+            }
+        });
+    });
+
+    // ========== Back to Top Button ==========
+    const backToTopBtn = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 500) {
+            backToTopBtn.classList.add('visible');
+        } else {
+            backToTopBtn.classList.remove('visible');
+        }
+    });
+    
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+
+    // ========== Animated Skill Bars ==========
+    const skillBars = document.querySelectorAll('.skill-progress');
+    const skillsCard = document.querySelector('.skills-card');
+    
+    // Set initial progress values from data attribute
+    skillBars.forEach(bar => {
+        const progress = bar.getAttribute('data-progress');
+        bar.style.setProperty('--progress', progress + '%');
+    });
+    
+    // Animate skill bars when skills card becomes visible
+    const skillsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                skillBars.forEach(bar => {
+                    bar.classList.add('animated');
+                });
+            }
+        });
+    }, { threshold: 0.3 });
+    
+    if (skillsCard) {
+        skillsObserver.observe(skillsCard);
+    }
+
     // ========== Mobile Navigation Toggle ==========
     const hamburger = document.querySelector('.hamburger');
     const navLinks = document.querySelector('.nav-links');
@@ -373,8 +501,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', highlightNav);
 
     // ========== Card Tilt Effect ==========
-    const cards = document.querySelectorAll('.service-card, .project-card, .education-card, .skills-card');
+    const cards = document.querySelectorAll('.service-card, .project-card');
+    const aboutCards = document.querySelectorAll('.education-card, .skills-card');
     
+    // Full tilt for service and project cards
     cards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
@@ -388,6 +518,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const rotateY = (centerX - x) / 20;
             
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+        });
+    });
+    
+    // Minimal tilt for about section cards
+    aboutCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            // Reduced tilt (divided by 50 instead of 20)
+            const rotateX = (y - centerY) / 50;
+            const rotateY = (centerX - x) / 50;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
         });
         
         card.addEventListener('mouseleave', () => {

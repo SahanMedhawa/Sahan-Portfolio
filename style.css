@@ -26,7 +26,7 @@
 
 /* Dark Mode Preference Support */
 @media (prefers-color-scheme: dark) {
-    :root {
+    :root:not([data-theme="light"]) {
         --primary-color: #818cf8;
         --primary-dark: #6366f1;
         --secondary-color: #a78bfa;
@@ -39,6 +39,35 @@
         --glass-border: rgba(71, 85, 105, 0.4);
         --white: #1e293b;
     }
+}
+
+/* Manual Dark Mode Toggle */
+:root[data-theme="dark"] {
+    --primary-color: #818cf8;
+    --primary-dark: #6366f1;
+    --secondary-color: #a78bfa;
+    --accent-color: #22d3ee;
+    --background-color: #0f172a;
+    --text-color: #f1f5f9;
+    --light-text: #94a3b8;
+    --card-bg: rgba(30, 41, 59, 0.8);
+    --glass-bg: rgba(30, 41, 59, 0.6);
+    --glass-border: rgba(71, 85, 105, 0.4);
+    --white: #1e293b;
+}
+
+:root[data-theme="light"] {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary-color: #8b5cf6;
+    --accent-color: #06b6d4;
+    --background-color: #f8fafc;
+    --text-color: #0f172a;
+    --light-text: #64748b;
+    --white: #ffffff;
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --glass-bg: rgba(255, 255, 255, 0.25);
+    --glass-border: rgba(255, 255, 255, 0.4);
 }
 
 /* Modern Keyframe Animations */
@@ -168,8 +197,28 @@ header {
 }
 
 header.scrolled {
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: var(--shadow);
+    background: linear-gradient(135deg, 
+        rgba(99, 102, 241, 0.12) 0%, 
+        rgba(139, 92, 246, 0.08) 50%, 
+        rgba(6, 182, 212, 0.06) 100%);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.15);
+    box-shadow: 
+        0 4px 30px rgba(99, 102, 241, 0.1),
+        0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Dark mode scrolled header */
+:root[data-theme="dark"] header.scrolled {
+    background: linear-gradient(135deg, 
+        rgba(99, 102, 241, 0.15) 0%, 
+        rgba(139, 92, 246, 0.12) 50%, 
+        rgba(6, 182, 212, 0.08) 100%);
+    border-bottom: 1px solid rgba(129, 140, 248, 0.2);
+    box-shadow: 
+        0 4px 30px rgba(99, 102, 241, 0.15),
+        0 1px 0 rgba(255, 255, 255, 0.05) inset;
 }
 
 .navbar {
@@ -1700,4 +1749,406 @@ textarea:focus-visible {
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+/* ========== THEME TOGGLE BUTTON ========== */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* ========== THEME TOGGLE SWITCH ========== */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.theme-icon-light,
+.theme-icon-dark {
+    font-size: 0.9rem;
+    color: var(--light-text);
+    transition: var(--transition);
+}
+
+.theme-icon-light {
+    color: #f59e0b;
+}
+
+.theme-icon-dark {
+    color: var(--light-text);
+}
+
+:root[data-theme="dark"] .theme-icon-light {
+    color: var(--light-text);
+}
+
+:root[data-theme="dark"] .theme-icon-dark {
+    color: #818cf8;
+}
+
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    transition: var(--transition);
+    border-radius: 26px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: var(--transition);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+input:checked + .slider:before {
+    transform: translateX(24px);
+}
+
+input:focus-visible + .slider {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Theme transition for smooth color changes */
+body,
+body * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ========== COPY BUTTON ========== */
+.copy-btn {
+    background: rgba(99, 102, 241, 0.1);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    transition: var(--transition);
+    margin-left: 0.5rem;
+}
+
+.copy-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.1);
+}
+
+.copy-btn.copied {
+    background: #10b981;
+    color: white;
+}
+
+.copy-btn:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Update contact item to accommodate copy button */
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    border-radius: 12px;
+    transition: var(--transition);
+    flex-wrap: wrap;
+}
+
+/* ========== BACK TO TOP BUTTON ========== */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    background: var(--accent-gradient);
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+    transition: var(--transition);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    z-index: 999;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px rgba(99, 102, 241, 0.6);
+}
+
+.back-to-top:active {
+    transform: translateY(-2px);
+}
+
+/* ========== RESUME DOWNLOAD BUTTON ========== */
+.resume-btn {
+    background: transparent;
+    border: 2px dashed var(--primary-color);
+    color: var(--primary-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.resume-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-style: solid;
+    transform: translateY(-3px);
+}
+
+.resume-btn i {
+    transition: var(--transition);
+}
+
+.resume-btn:hover i {
+    animation: bounce 0.5s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+/* ========== PROJECT IMAGE PREVIEWS ========== */
+.project-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+}
+
+.project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition-slow);
+}
+
+.project-card:hover .project-image img {
+    transform: scale(1.1);
+}
+
+.project-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.project-card:hover .project-overlay {
+    opacity: 1;
+}
+
+.view-project {
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    transform: translateY(20px);
+    transition: var(--transition);
+}
+
+.project-card:hover .view-project {
+    transform: translateY(0);
+}
+
+.view-project:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Placeholder for missing project images */
+.project-image img[src*="placeholder"],
+.project-image img:not([src]),
+.project-image img[src=""] {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+}
+
+/* ========== ANIMATED SKILL BARS ========== */
+.skill-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.skill-item {
+    width: 100%;
+}
+
+.skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.skill-name {
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.skill-percent {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+}
+
+.skill-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(99, 102, 241, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.skill-progress {
+    height: 100%;
+    width: 0;
+    background: var(--accent-gradient);
+    background-size: 200% 100%;
+    border-radius: 10px;
+    transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+}
+
+.skill-progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+.skill-progress.animated {
+    animation: gradient-shift 3s ease infinite;
+}
+
+/* Skill bars animation trigger when visible */
+.skills-card.visible .skill-progress {
+    width: var(--progress);
+}
+
+/* ========== MOBILE ADJUSTMENTS FOR NEW FEATURES ========== */
+@media (max-width: 768px) {
+    .nav-actions {
+        gap: 0.75rem;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+    
+    .back-to-top {
+        bottom: 1.5rem;
+        right: 1.5rem;
+        width: 45px;
+        height: 45px;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .resume-btn {
+        justify-content: center;
+    }
+    
+    .project-image {
+        height: 180px;
+    }
+    
+    .skill-bar {
+        height: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .theme-toggle {
+        width: 38px;
+        height: 38px;
+    }
+    
+    .back-to-top {
+        bottom: 1rem;
+        right: 1rem;
+        width: 42px;
+        height: 42px;
+    }
+    
+    .project-image {
+        height: 160px;
+    }
 }

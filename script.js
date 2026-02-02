@@ -1,21 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ========== EmailJS Configuration ==========
-    // TODO: Replace these with your actual EmailJS credentials
-    // 1. Sign up at https://www.emailjs.com/ (FREE: 200 emails/month)
-    // 2. Create an Email Service (Gmail, Outlook, etc.)
-    // 3. Create an Email Template with variables: {{from_name}}, {{from_email}}, {{message}}
-    // 4. Get your Public Key from Account > API Keys
-    const EMAILJS_CONFIG = {
-        publicKey: 'e5oyK9-2sRcjMch1i',      // Replace with your EmailJS public key
-        serviceId: 'service_axwegri',       // Replace with your EmailJS service ID
-        templateId: 'template_ldfdszf'      // Replace with your EmailJS template ID
-    };
-
-    // Initialize EmailJS
-    if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
-        emailjs.init(EMAILJS_CONFIG.publicKey);
-    }
-
     // ========== Security: Enhanced Input Sanitization ==========
     function sanitizeInput(input) {
         if (typeof input !== 'string') return '';
@@ -66,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
             this.attempts = this.attempts.filter(time => now - time < this.windowMs);
             
             // Check if in cooldown
-            const lastAttempt = localStorage.getItem('lastFormSubmit');
             const cooldownUntil = localStorage.getItem('formCooldown');
             
             if (cooldownUntil && now < parseInt(cooldownUntil)) {
@@ -88,20 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // ========== Form Token Generation (Anti-CSRF) ==========
-    function generateFormToken() {
-        const array = new Uint8Array(16);
-        crypto.getRandomValues(array);
-        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
-    }
-
-    // Set form timestamp and token on page load
+    // Set form timestamp on page load (for timing-based bot detection)
     const formTimestamp = document.getElementById('formTimestamp');
-    const formToken = document.getElementById('formToken');
     const pageLoadTime = Date.now();
     
     if (formTimestamp) formTimestamp.value = pageLoadTime.toString();
-    if (formToken) formToken.value = generateFormToken();
 
     // ========== Dark/Light Mode Toggle ==========
     const themeToggle = document.getElementById('themeToggle');
@@ -431,13 +404,12 @@ document.addEventListener('DOMContentLoaded', () => {
         tag.style.animationDelay = `${index * 50}ms`;
     });
 
-    // ========== Contact Form Handling with EmailJS & Security ==========
+    // ========== Contact Form Handling with Netlify Forms & Security ==========
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         const nameInput = document.getElementById('name');
         const emailInput = document.getElementById('email');
         const messageInput = document.getElementById('message');
-        const honeypotInput = document.getElementById('website');
         const formStatus = document.getElementById('formStatus');
         
         // Real-time validation
@@ -487,14 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // ===== Security Check 1: Honeypot =====
-            if (honeypotInput && honeypotInput.value) {
-                console.warn('Bot detected: honeypot filled');
-                formStatus.textContent = 'Thank you for your message!'; // Fake success for bots
-                return;
-            }
-            
-            // ===== Security Check 2: Timing-based bot detection =====
+            // ===== Security Check 1: Timing-based bot detection =====
             const submitTime = Date.now();
             const loadTime = parseInt(formTimestamp?.value || '0');
             const timeDiff = submitTime - loadTime;
@@ -506,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // ===== Security Check 3: Rate Limiting =====
+            // ===== Security Check 2: Rate Limiting =====
             const rateCheck = rateLimiter.canSubmit();
             if (!rateCheck.allowed) {
                 formStatus.textContent = rateCheck.message;
@@ -562,27 +527,17 @@ document.addEventListener('DOMContentLoaded', () => {
             // Record this attempt for rate limiting
             rateLimiter.recordAttempt();
 
-            // Check if EmailJS is configured
-            const isEmailJSConfigured = typeof emailjs !== 'undefined' && 
-                EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY' &&
-                EMAILJS_CONFIG.serviceId !== 'YOUR_SERVICE_ID' &&
-                EMAILJS_CONFIG.templateId !== 'YOUR_TEMPLATE_ID';
+            // Submit to Netlify Forms
+            try {
+                const formData = new FormData(contactForm);
+                
+                const response = await fetch('/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams(formData).toString()
+                });
 
-            if (isEmailJSConfigured) {
-                // Send via EmailJS
-                try {
-                    await emailjs.send(
-                        EMAILJS_CONFIG.serviceId,
-                        EMAILJS_CONFIG.templateId,
-                        {
-                            from_name: name,
-                            from_email: email,
-                            message: message,
-                            to_name: 'Sahan Medhawa',
-                            reply_to: email
-                        }
-                    );
-                    
+                if (response.ok) {
                     submitBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Message Sent!';
                     submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
                     
@@ -592,33 +547,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Reset form
                     contactForm.reset();
                     
-                    // Regenerate token for next submission
-                    if (formToken) formToken.value = generateFormToken();
+                    // Reset timestamp for next submission
                     if (formTimestamp) formTimestamp.value = Date.now().toString();
-
-                } catch (error) {
-                    console.error('EmailJS Error:', error);
-                    submitBtn.innerHTML = '<i class="fas fa-times" aria-hidden="true"></i> Failed to Send';
-                    submitBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
-                    
-                    formStatus.textContent = 'Failed to send message. Please try again or email me directly.';
-                    formStatus.className = 'form-status error';
+                } else {
+                    throw new Error('Form submission failed');
                 }
-            } else {
-                // Fallback: Show instructions if EmailJS not configured
-                console.warn('EmailJS not configured. Using fallback.');
+
+            } catch (error) {
+                console.error('Form Error:', error);
+                submitBtn.innerHTML = '<i class="fas fa-times" aria-hidden="true"></i> Failed to Send';
+                submitBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
                 
-                // Create mailto link as fallback
-                const mailtoLink = `mailto:dmsahanmedawa@gmail.com?subject=Portfolio Contact from ${encodeURIComponent(name)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
-                
-                submitBtn.innerHTML = '<i class="fas fa-envelope" aria-hidden="true"></i> Opening Email...';
-                submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                
-                formStatus.innerHTML = `EmailJS not configured. <a href="${mailtoLink}" style="color: var(--primary-color); text-decoration: underline;">Click here to send via email</a>`;
-                formStatus.className = 'form-status';
-                
-                // Open mailto
-                window.location.href = mailtoLink;
+                formStatus.textContent = 'Failed to send message. Please try again or email me directly.';
+                formStatus.className = 'form-status error';
             }
 
             // Reset button after a few seconds

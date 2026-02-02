@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sahan Medhawa | Software Engineer Portfolio</title>
+    <meta name="description"
+        content="Portfolio of Sahan Medhawa, a Software Engineering undergraduate specializing in scalable, user-centric web applications using the MERN stack.">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <!-- Content Security Policy - Restrictive but allows required resources -->
+    <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; 
+                 script-src 'self' 'unsafe-inline'; 
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+                 font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
+                 img-src 'self' data: https:; 
+                 connect-src 'self'; 
+                 frame-ancestors 'none'; 
+                 base-uri 'self'; 
+                 form-action 'self';">
+    
+    <!-- Additional Security -->
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    
+    <!-- DNS Prefetch -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Stylesheets -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">Sahan.dev</div>
+            <ul class="nav-links" id="navLinks" role="navigation" aria-label="Main navigation">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#portfolio">Portfolio</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="hamburger" 
+                aria-label="Toggle navigation menu" 
+                aria-expanded="false" 
+                aria-controls="navLinks"
+                type="button">
+                <span class="bar" aria-hidden="true"></span>
+                <span class="bar" aria-hidden="true"></span>
+                <span class="bar" aria-hidden="true"></span>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="parallax-bg"></div>
+            <div class="container hero-container">
+                <div class="hero-text reveal">
+                    <h1>Hi, I'm <span class="highlight">Sahan Medhawa</span></h1>
+                    <p class="tagline">Building scalable, user-centric web applications.</p>
+                    <p class="bio-brief">Passionate Software Engineering undergraduate focused on frontend & backend
+                        development with a knack for problem-solving.</p>
+                    <div class="cta-buttons">
+                        <a href="#portfolio" class="btn primary-btn">View My Work</a>
+                        <a href="#contact" class="btn secondary-btn">Contact Me</a>
+                    </div>
+                </div>
+                <div class="hero-image-wrapper reveal stagger-1">
+                    <div class="image-blob"></div>
+                    <img src="assets/profile.jpg" alt="Sahan Medhawa" class="hero-profile-img">
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <span>Scroll Down</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </section>
+
+        <section id="about" class="section">
+            <div class="container reveal">
+                <h2 class="section-title">About Me</h2>
+                <div class="about-grid">
+                    <div class="education-card reveal stagger-1">
+                        <h3><i class="fas fa-graduation-cap"></i> Education</h3>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <span class="date">2023 – 2027</span>
+                                <h4>B.Sc. (Hons) in Information Technology</h4>
+                                <p>Specializing in Software Engineering @ SLIIT</p>
+                                <p class="gpa">CGPA: 3.83</p>
+                            </div>
+                            <div class="timeline-item">
+                                <span class="date">2024 – 2027</span>
+                                <h4>B.Sc. in Physics and ICT</h4>
+                                <p>University of Sri Jayewardenapura</p>
+                            </div>
+                            <div class="timeline-item">
+                                <span class="date">2012 – 2020</span>
+                                <h4>Secondary Education</h4>
+                                <p>Royal College Colombo (Mathematics Stream)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="skills-card reveal stagger-2">
+                        <h3><i class="fas fa-code"></i> Skills</h3>
+                        <div class="skills-category">
+                            <h4>Technical</h4>
+                            <div class="tags">
+                                <span>Java</span><span>Node.js</span><span>React</span><span>Express</span>
+                                <span>JavaScript</span><span>MongoDB</span><span>Python</span><span>C & C++</span>
+                                <span>Tailwind CSS</span><span>PHP</span><span>HTML</span><span>SQL</span>
+                                <span>Git & GitHub</span><span>Agile & Scrum</span>
+                            </div>
+                        </div>
+                        <div class="skills-category">
+                            <h4>Soft Skills</h4>
+                            <div class="tags">
+                                <span>Team Collaboration</span><span>Project Management</span>
+                                <span>Time Management</span><span>Adaptability</span>
+                                <span>Leadership</span><span>Communication</span>
+                                <span>Problem-Solving</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="section alt-bg">
+            <div class="container reveal">
+                <h2 class="section-title">What I Do</h2>
+                <div class="services-grid">
+                    <div class="service-card reveal stagger-1">
+                        <i class="fas fa-layer-group icon"></i>
+                        <h3>MERN Stack Development</h3>
+                        <p>Specializing in building robust full-stack applications using MongoDB, Express.js, React, and
+                            Node.js.</p>
+                    </div>
+                    <div class="service-card reveal stagger-2">
+                        <i class="fas fa-mobile-alt icon"></i>
+                        <h3>Responsive Design</h3>
+                        <p>Creating user-centric designs that look great and function perfectly on desktops, tablets,
+                            and mobile devices.</p>
+                    </div>
+                    <div class="service-card reveal stagger-3">
+                        <i class="fas fa-server icon"></i>
+                        <h3>Backend API Development</h3>
+                        <p>Designing and implementing scalable RESTful APIs and managing databases for high-performance
+                            applications.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="section">
+            <div class="container reveal">
+                <h2 class="section-title">Featured Projects</h2>
+                <div class="projects-grid">
+                    <div class="project-card reveal stagger-1">
+                        <div class="project-info">
+                            <h3>TeamSync</h3>
+                            <p class="project-role">Team Collaboration & Employee Evaluation System</p>
+                            <p class="project-desc">A comprehensive MERN stack web app for task management and employee
+                                evaluation. Features centralized task tracking, auto-escalation, RBAC with JWT
+                                authentication, and real-time notifications.</p>
+                            <div class="tech-stack">
+                                <span>MERN Stack</span><span>JWT</span><span>Socket.io</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="#" class="link-btn"><i class="fab fa-github"></i> View Repo</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card reveal stagger-2">
+                        <div class="project-info">
+                            <h3>MediTrack</h3>
+                            <p class="project-role">Smart Clinic Appointment & Queue Management</p>
+                            <p class="project-desc">Digitalizes clinic appointments and queues. Includes patient
+                                registration, live queue updates, backend APIs, and follows an Agile Scrum workflow.</p>
+                            <div class="tech-stack">
+                                <span>MERN Stack</span><span>Agile</span><span>REST API</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://github.com/SahanMedhawa/MediTrack" target="_blank"
+                                    rel="noopener noreferrer" class="link-btn"><i class="fab fa-github"></i> View
+                                    Repo</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section alt-bg">
+            <div class="container reveal">
+                <h2 class="section-title">Get In Touch</h2>
+                <div class="contact-wrapper">
+                    <div class="contact-card">
+                        <div class="contact-info">
+                            <h3>Let's Connect</h3>
+                            <p class="contact-desc">I'm currently looking for new opportunities. Whether you have a
+                                question or just want to say hi, I'll try my best to get back to you!</p>
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <a href="mailto:dmsahanmedawa@gmail.com">dmsahanmedawa@gmail.com</a>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone"></i>
+                                <a href="tel:+94768304156">+94 76 830 4156</a>
+                            </div>
+                            <div class="social-links">
+                                <a href="https://www.linkedin.com/in/sahanmedhawa/" target="_blank"
+                                    rel="noopener noreferrer"><i class="fab fa-linkedin"></i></a>
+                                <a href="https://github.com/SahanMedhawa" target="_blank" rel="noopener noreferrer"><i
+                                        class="fab fa-github"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <form class="contact-form" id="contactForm" novalidate autocomplete="on">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" placeholder="John Doe" required 
+                                autocomplete="name" 
+                                minlength="2" 
+                                maxlength="100"
+                                pattern="^[a-zA-Z\s\-'\.]+$"
+                                aria-describedby="nameError">
+                            <span id="nameError" class="error-message" role="alert" aria-live="polite"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="john@example.com" required 
+                                autocomplete="email"
+                                maxlength="254"
+                                aria-describedby="emailError">
+                            <span id="emailError" class="error-message" role="alert" aria-live="polite"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="5" placeholder="Your interesting project..."
+                                required
+                                minlength="10"
+                                maxlength="2000"
+                                aria-describedby="messageError"></textarea>
+                            <span id="messageError" class="error-message" role="alert" aria-live="polite"></span>
+                        </div>
+                        <!-- Honeypot field for bot detection -->
+                        <div class="form-group" style="position: absolute; left: -9999px;" aria-hidden="true">
+                            <label for="website">Website</label>
+                            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                        </div>
+                        <div id="formStatus" role="status" aria-live="polite" class="form-status"></div>
+                        <button type="submit" class="btn primary-btn full-width">Send Message <i
+                                class="fas fa-paper-plane" aria-hidden="true"></i></button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Sahan Medhawa. All Rights Reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

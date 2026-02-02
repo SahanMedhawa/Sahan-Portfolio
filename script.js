@@ -1,20 +1,107 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // ========== Security: Input Sanitization Helper ==========
+    // ========== EmailJS Configuration ==========
+    // TODO: Replace these with your actual EmailJS credentials
+    // 1. Sign up at https://www.emailjs.com/ (FREE: 200 emails/month)
+    // 2. Create an Email Service (Gmail, Outlook, etc.)
+    // 3. Create an Email Template with variables: {{from_name}}, {{from_email}}, {{message}}
+    // 4. Get your Public Key from Account > API Keys
+    const EMAILJS_CONFIG = {
+        publicKey: 'e5oyK9-2sRcjMch1i',      // Replace with your EmailJS public key
+        serviceId: 'service_axwegri',       // Replace with your EmailJS service ID
+        templateId: 'template_ldfdszf'      // Replace with your EmailJS template ID
+    };
+
+    // Initialize EmailJS
+    if (typeof emailjs !== 'undefined' && EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY') {
+        emailjs.init(EMAILJS_CONFIG.publicKey);
+    }
+
+    // ========== Security: Enhanced Input Sanitization ==========
     function sanitizeInput(input) {
+        if (typeof input !== 'string') return '';
+        // Remove potential XSS vectors
         const div = document.createElement('div');
         div.textContent = input;
-        return div.innerHTML;
+        let sanitized = div.innerHTML;
+        // Additional sanitization for common attack patterns
+        sanitized = sanitized
+            .replace(/javascript:/gi, '')
+            .replace(/on\w+=/gi, '')
+            .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+        return sanitized;
     }
 
     function validateEmail(email) {
+        if (typeof email !== 'string') return false;
         const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-        return emailRegex.test(email) && email.length <= 254;
+        return emailRegex.test(email) && email.length <= 254 && email.length >= 5;
     }
 
     function validateName(name) {
+        if (typeof name !== 'string') return false;
         const nameRegex = /^[a-zA-Z\s\-'\.]{2,100}$/;
-        return nameRegex.test(name);
+        // Check for suspicious patterns
+        const suspiciousPatterns = /<|>|script|javascript|onclick|onerror/i;
+        return nameRegex.test(name) && !suspiciousPatterns.test(name);
     }
+
+    function validateMessage(message) {
+        if (typeof message !== 'string') return false;
+        // Check for excessive links (spam indicator)
+        const linkCount = (message.match(/https?:\/\//gi) || []).length;
+        if (linkCount > 3) return false;
+        return message.length >= 10 && message.length <= 2000;
+    }
+
+    // ========== Rate Limiting ==========
+    const rateLimiter = {
+        attempts: [],
+        maxAttempts: 3,
+        windowMs: 60000, // 1 minute
+        cooldownMs: 300000, // 5 minutes cooldown after limit reached
+        
+        canSubmit() {
+            const now = Date.now();
+            // Remove old attempts outside the window
+            this.attempts = this.attempts.filter(time => now - time < this.windowMs);
+            
+            // Check if in cooldown
+            const lastAttempt = localStorage.getItem('lastFormSubmit');
+            const cooldownUntil = localStorage.getItem('formCooldown');
+            
+            if (cooldownUntil && now < parseInt(cooldownUntil)) {
+                const remaining = Math.ceil((parseInt(cooldownUntil) - now) / 1000);
+                return { allowed: false, message: `Too many attempts. Please wait ${remaining} seconds.` };
+            }
+            
+            if (this.attempts.length >= this.maxAttempts) {
+                localStorage.setItem('formCooldown', (now + this.cooldownMs).toString());
+                return { allowed: false, message: 'Too many attempts. Please wait 5 minutes.' };
+            }
+            
+            return { allowed: true };
+        },
+        
+        recordAttempt() {
+            this.attempts.push(Date.now());
+            localStorage.setItem('lastFormSubmit', Date.now().toString());
+        }
+    };
+
+    // ========== Form Token Generation (Anti-CSRF) ==========
+    function generateFormToken() {
+        const array = new Uint8Array(16);
+        crypto.getRandomValues(array);
+        return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Set form timestamp and token on page load
+    const formTimestamp = document.getElementById('formTimestamp');
+    const formToken = document.getElementById('formToken');
+    const pageLoadTime = Date.now();
+    
+    if (formTimestamp) formTimestamp.value = pageLoadTime.toString();
+    if (formToken) formToken.value = generateFormToken();
 
     // ========== Dark/Light Mode Toggle ==========
     const themeToggle = document.getElementById('themeToggle');
@@ -344,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tag.style.animationDelay = `${index * 50}ms`;
     });
 
-    // ========== Contact Form Handling with Security ==========
+    // ========== Contact Form Handling with EmailJS & Security ==========
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         const nameInput = document.getElementById('name');
@@ -397,12 +484,33 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        contactForm.addEventListener('submit', (e) => {
+        contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Honeypot check - if filled, it's likely a bot
+            // ===== Security Check 1: Honeypot =====
             if (honeypotInput && honeypotInput.value) {
-                console.warn('Bot detected');
+                console.warn('Bot detected: honeypot filled');
+                formStatus.textContent = 'Thank you for your message!'; // Fake success for bots
+                return;
+            }
+            
+            // ===== Security Check 2: Timing-based bot detection =====
+            const submitTime = Date.now();
+            const loadTime = parseInt(formTimestamp?.value || '0');
+            const timeDiff = submitTime - loadTime;
+            
+            // If form submitted in less than 3 seconds, likely a bot
+            if (timeDiff < 3000) {
+                console.warn('Bot detected: form submitted too quickly');
+                formStatus.textContent = 'Thank you for your message!';
+                return;
+            }
+            
+            // ===== Security Check 3: Rate Limiting =====
+            const rateCheck = rateLimiter.canSubmit();
+            if (!rateCheck.allowed) {
+                formStatus.textContent = rateCheck.message;
+                formStatus.className = 'form-status error';
                 return;
             }
             
@@ -424,13 +532,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 isValid = false;
             }
             
-            if (message.length < 10) {
-                showError(messageInput, 'messageError', 'Message must be at least 10 characters');
-                isValid = false;
-            }
-            
-            if (message.length > 2000) {
-                showError(messageInput, 'messageError', 'Message must be less than 2000 characters');
+            if (!validateMessage(message)) {
+                if (message.length < 10) {
+                    showError(messageInput, 'messageError', 'Message must be at least 10 characters');
+                } else if (message.length > 2000) {
+                    showError(messageInput, 'messageError', 'Message must be less than 2000 characters');
+                } else {
+                    showError(messageInput, 'messageError', 'Message contains too many links');
+                }
                 isValid = false;
             }
             
@@ -450,28 +559,75 @@ document.addEventListener('DOMContentLoaded', () => {
             formStatus.className = 'form-status';
             formStatus.textContent = '';
 
-            // Simulate sending (replace with actual API call)
-            setTimeout(() => {
-                // In production, you would send data to a secure backend here
-                // Example: fetch('/api/contact', { method: 'POST', body: JSON.stringify({ name, email, message }) })
+            // Record this attempt for rate limiting
+            rateLimiter.recordAttempt();
+
+            // Check if EmailJS is configured
+            const isEmailJSConfigured = typeof emailjs !== 'undefined' && 
+                EMAILJS_CONFIG.publicKey !== 'YOUR_PUBLIC_KEY' &&
+                EMAILJS_CONFIG.serviceId !== 'YOUR_SERVICE_ID' &&
+                EMAILJS_CONFIG.templateId !== 'YOUR_TEMPLATE_ID';
+
+            if (isEmailJSConfigured) {
+                // Send via EmailJS
+                try {
+                    await emailjs.send(
+                        EMAILJS_CONFIG.serviceId,
+                        EMAILJS_CONFIG.templateId,
+                        {
+                            from_name: name,
+                            from_email: email,
+                            message: message,
+                            to_name: 'Sahan Medhawa',
+                            reply_to: email
+                        }
+                    );
+                    
+                    submitBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Message Sent!';
+                    submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    
+                    formStatus.textContent = 'Thank you! Your message has been sent successfully.';
+                    formStatus.className = 'form-status success';
+
+                    // Reset form
+                    contactForm.reset();
+                    
+                    // Regenerate token for next submission
+                    if (formToken) formToken.value = generateFormToken();
+                    if (formTimestamp) formTimestamp.value = Date.now().toString();
+
+                } catch (error) {
+                    console.error('EmailJS Error:', error);
+                    submitBtn.innerHTML = '<i class="fas fa-times" aria-hidden="true"></i> Failed to Send';
+                    submitBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                    
+                    formStatus.textContent = 'Failed to send message. Please try again or email me directly.';
+                    formStatus.className = 'form-status error';
+                }
+            } else {
+                // Fallback: Show instructions if EmailJS not configured
+                console.warn('EmailJS not configured. Using fallback.');
                 
-                submitBtn.innerHTML = '<i class="fas fa-check" aria-hidden="true"></i> Message Sent!';
+                // Create mailto link as fallback
+                const mailtoLink = `mailto:dmsahanmedawa@gmail.com?subject=Portfolio Contact from ${encodeURIComponent(name)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+                
+                submitBtn.innerHTML = '<i class="fas fa-envelope" aria-hidden="true"></i> Opening Email...';
                 submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
                 
-                formStatus.textContent = 'Thank you! Your message has been sent successfully.';
-                formStatus.className = 'form-status success';
+                formStatus.innerHTML = `EmailJS not configured. <a href="${mailtoLink}" style="color: var(--primary-color); text-decoration: underline;">Click here to send via email</a>`;
+                formStatus.className = 'form-status';
+                
+                // Open mailto
+                window.location.href = mailtoLink;
+            }
 
-                // Reset form
-                contactForm.reset();
-
-                // Reset button after a few seconds
-                setTimeout(() => {
-                    submitBtn.innerHTML = originalHTML;
-                    submitBtn.disabled = false;
-                    submitBtn.style.background = '';
-                    submitBtn.style.opacity = '';
-                }, 3000);
-            }, 1500);
+            // Reset button after a few seconds
+            setTimeout(() => {
+                submitBtn.innerHTML = originalHTML;
+                submitBtn.disabled = false;
+                submitBtn.style.background = '';
+                submitBtn.style.opacity = '';
+            }, 3000);
         });
     }
 

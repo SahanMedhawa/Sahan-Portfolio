@@ -16,11 +16,11 @@
     <!-- Content Security Policy - Restrictive but allows required resources -->
     <meta http-equiv="Content-Security-Policy" 
         content="default-src 'self'; 
-                 script-src 'self' 'unsafe-inline'; 
+                 script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; 
                  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
                  font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
                  img-src 'self' data: https:; 
-                 connect-src 'self'; 
+                 connect-src 'self' https://api.emailjs.com; 
                  frame-ancestors 'none'; 
                  base-uri 'self'; 
                  form-action 'self';">
@@ -358,6 +358,10 @@
                             <label for="website">Website</label>
                             <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
                         </div>
+                        <!-- Hidden timestamp for timing-based bot detection -->
+                        <input type="hidden" id="formTimestamp" name="timestamp" value="">
+                        <!-- Hidden token for submission validation -->
+                        <input type="hidden" id="formToken" name="token" value="">
                         <div id="formStatus" role="status" aria-live="polite" class="form-status"></div>
                         <button type="submit" class="btn primary-btn full-width">Send Message <i
                                 class="fas fa-paper-plane" aria-hidden="true"></i></button>
@@ -376,6 +380,8 @@
         <i class="fas fa-arrow-up" aria-hidden="true"></i>
     </button>
 
+    <!-- EmailJS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="script.js"></script>
 </body>
 

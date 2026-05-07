@@ -598,7 +598,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', highlightNav);
 
     // ========== Card Tilt Effect ==========
-    const cards = document.querySelectorAll('.service-card, .project-card');
+    // Exclude the featured project card — it has its own animated conic border + spotlight.
+    const cards = document.querySelectorAll('.service-card, .project-card:not(.project-card--featured)');
     const aboutCards = document.querySelectorAll('.education-card, .skills-card');
     
     // Full tilt for service and project cards
@@ -660,6 +661,94 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         updateCounter();
+    }
+
+    // ========== Spotlight Cursor (mouse-following glow on cards) ==========
+    const spotlightCards = document.querySelectorAll('[data-spotlight]');
+    const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (isFinePointer && !reducedMotion) {
+        spotlightCards.forEach(card => {
+            let raf = 0;
+
+            card.addEventListener('mousemove', (e) => {
+                if (raf) return;
+                raf = requestAnimationFrame(() => {
+                    const rect = card.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    card.style.setProperty('--mx', `${x}%`);
+                    card.style.setProperty('--my', `${y}%`);
+                    raf = 0;
+                });
+            });
+
+            card.addEventListener('mouseleave', () => {
+                card.style.setProperty('--mx', '50%');
+                card.style.setProperty('--my', '50%');
+            });
+        });
+    }
+
+    // ========== Animated Stats Counters (HealthMate featured card) ==========
+    const counters = document.querySelectorAll('.stat-num[data-counter]');
+
+    function animateNumber(element, target, duration = 1200) {
+        const suffix = element.getAttribute('data-suffix') || '';
+        const start = performance.now();
+
+        function tick(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // easeOutCubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const value = Math.round(target * eased);
+            element.textContent = value + suffix;
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                element.textContent = target + suffix;
+            }
+        }
+
+        requestAnimationFrame(tick);
+    }
+
+    if (counters.length) {
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const target = parseInt(entry.target.getAttribute('data-counter'), 10) || 0;
+                    if (reducedMotion) {
+                        const suffix = entry.target.getAttribute('data-suffix') || '';
+                        entry.target.textContent = target + suffix;
+                    } else {
+                        animateNumber(entry.target, target);
+                    }
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.4 });
+
+        counters.forEach(c => counterObserver.observe(c));
+    }
+
+    // ========== Magnetic primary link on featured card ==========
+    const magneticTargets = document.querySelectorAll('.link-btn--primary');
+
+    if (isFinePointer && !reducedMotion) {
+        magneticTargets.forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                el.style.transform = `translate(${x * 0.18}px, ${y * 0.25}px)`;
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = '';
+            });
+        });
     }
 
     // ========== Page Load Animation ==========

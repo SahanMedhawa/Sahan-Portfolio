@@ -2205,3 +2205,454 @@ body * {
         height: 160px;
     }
 }
+
+/* ==========================================================================
+   2026 UI: Featured Project, Spotlight Cursor, Bento, Animated Border
+   ========================================================================== */
+
+@keyframes border-spin {
+    0%   { --hm-angle: 0deg; }
+    100% { --hm-angle: 360deg; }
+}
+
+@keyframes badge-shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes new-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.55), 0 0 18px rgba(34, 211, 238, 0.45); }
+    50%      { box-shadow: 0 0 0 10px rgba(34, 211, 238, 0), 0 0 22px rgba(34, 211, 238, 0.8); }
+}
+
+@keyframes counter-pop {
+    0%   { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0);  opacity: 1; }
+}
+
+/* ----- Spotlight cursor on any [data-spotlight] card ----- */
+[data-spotlight] {
+    position: relative;
+    isolation: isolate;
+}
+
+[data-spotlight]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+        420px circle at var(--mx, 50%) var(--my, 50%),
+        rgba(99, 102, 241, 0.18),
+        rgba(139, 92, 246, 0.10) 30%,
+        transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    z-index: 0;
+}
+
+[data-spotlight]:hover::after {
+    opacity: 1;
+}
+
+[data-spotlight] > * {
+    position: relative;
+    z-index: 1;
+}
+
+:root[data-theme="dark"] [data-spotlight]::after {
+    background: radial-gradient(
+        460px circle at var(--mx, 50%) var(--my, 50%),
+        rgba(129, 140, 248, 0.22),
+        rgba(34, 211, 238, 0.10) 35%,
+        transparent 65%
+    );
+}
+
+/* ----- Featured project card (bento) ----- */
+.project-card--featured {
+    position: relative;
+    background: var(--card-bg);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 4px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    display: block;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@property --hm-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+/* Animated rotating conic-gradient border
+   Specificity-bumped & explicitly reset to override the generic .project-card::before
+   (which sets height: 4px and a scaleX transform). */
+.project-card.project-card--featured::before {
+    content: "";
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    bottom: -1px;
+    left: -1px;
+    inset: -1px;
+    width: auto;
+    height: auto;
+    border-radius: 24px;
+    padding: 1px;
+    background: conic-gradient(
+        from var(--hm-angle, 0deg),
+        rgba(99, 102, 241, 0.0) 0deg,
+        rgba(99, 102, 241, 0.9) 60deg,
+        rgba(139, 92, 246, 0.9) 120deg,
+        rgba(6, 182, 212, 0.9) 200deg,
+        rgba(99, 102, 241, 0.0) 360deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    transform: none;
+    transition: none;
+    animation: border-spin 8s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 1;
+}
+
+.project-card--featured:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 30px 70px -25px rgba(99, 102, 241, 0.35);
+}
+
+/* Soft halo behind the card */
+.featured-glow {
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 70%;
+    height: 180%;
+    background: radial-gradient(closest-side, rgba(34, 211, 238, 0.18), transparent 70%);
+    filter: blur(50px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.featured-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 0;
+    background: var(--card-bg);
+    border-radius: 22px;
+    overflow: hidden;
+}
+
+.featured-media {
+    position: relative;
+    min-height: 100%;
+}
+
+.project-image--featured {
+    height: 100%;
+    min-height: 420px;
+    border-radius: 0;
+    border-right: 1px solid var(--glass-border);
+}
+
+.project-image--featured img {
+    height: 100%;
+    min-height: 420px;
+}
+
+/* Featured info panel */
+.featured-info {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.project-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    background: linear-gradient(90deg, rgba(99, 102, 241, 0.10), rgba(6, 182, 212, 0.10));
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    width: fit-content;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.featured-info h3 {
+    font-size: 2rem;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    background: var(--accent-gradient);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 6s ease infinite;
+    margin: 0;
+}
+
+.featured-info .project-role {
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.featured-info .project-desc {
+    margin: 0;
+    font-size: 0.98rem;
+}
+
+/* Stats row */
+.featured-stats {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin: 0.5rem 0 0.25rem;
+    padding: 0;
+}
+
+.featured-stats li {
+    background: linear-gradient(180deg, rgba(99, 102, 241, 0.08), rgba(99, 102, 241, 0.02));
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 14px;
+    padding: 0.85rem 0.75rem;
+    text-align: center;
+    transition: var(--transition);
+}
+
+.featured-stats li:hover {
+    transform: translateY(-3px);
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 8px 20px -10px rgba(99, 102, 241, 0.4);
+}
+
+.stat-num {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+            background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: counter-pop 0.6s ease both;
+}
+
+.stat-label {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.6px;
+    color: var(--light-text);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Bullet checklist */
+.featured-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0;
+    display: grid;
+    gap: 0.45rem;
+}
+
+.featured-bullets li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    font-size: 0.92rem;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.featured-bullets li i {
+    color: #10b981;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+/* Featured tech chips: tighter wrap with gradient outline */
+.tech-stack--featured {
+    margin-top: 0.5rem;
+}
+
+.tech-stack--featured span {
+    background: rgba(99, 102, 241, 0.06);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.tech-stack--featured span:hover {
+    background: var(--accent-gradient);
+    color: #fff;
+    border-color: transparent;
+    transform: translateY(-2px);
+}
+
+/* Primary link button on featured card */
+.link-btn--primary {
+    background: var(--accent-gradient);
+    background-size: 200% 200%;
+    color: #fff !important;
+    padding: 0.7rem 1.2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -10px rgba(99, 102, 241, 0.6);
+    transition: var(--transition);
+}
+
+.link-btn--primary:hover {
+    background-position: 100% 0;
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px -10px rgba(99, 102, 241, 0.7);
+}
+
+.link-btn--primary .link-arrow {
+    transition: transform 0.3s ease;
+}
+
+.link-btn--primary:hover .link-arrow {
+    transform: translateX(4px);
+}
+
+/* Badges on the featured media */
+.featured-badges {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 3;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.badge--featured {
+    color: #fff;
+    background: linear-gradient(
+        90deg,
+        rgba(99, 102, 241, 0.9) 0%,
+        rgba(139, 92, 246, 0.9) 50%,
+        rgba(99, 102, 241, 0.9) 100%
+    );
+    background-size: 200% 100%;
+    animation: badge-shimmer 4s linear infinite;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.badge--featured i {
+    color: #fde68a;
+}
+
+.badge--new {
+    color: #cffafe;
+    background: rgba(6, 182, 212, 0.18);
+    border: 1px solid rgba(34, 211, 238, 0.7);
+    animation: new-pulse 2.2s ease-in-out infinite;
+}
+
+/* ----- Responsive: collapse featured layout ----- */
+@media (max-width: 968px) {
+    .featured-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .project-image--featured,
+    .project-image--featured img {
+        min-height: 260px;
+    }
+
+    .project-image--featured {
+        border-right: none;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    .featured-info {
+        padding: 2rem;
+    }
+
+    .featured-info h3 {
+        font-size: 1.6rem;
+    }
+
+    .featured-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .project-card--featured {
+        border-radius: 20px;
+    }
+
+    .featured-info {
+        padding: 1.5rem;
+    }
+
+    .featured-info h3 {
+        font-size: 1.4rem;
+    }
+
+    .featured-bullets li {
+        font-size: 0.88rem;
+    }
+
+    .stat-num {
+        font-size: 1.3rem;
+    }
+}
+
+/* Reduce motion: disable animated border + pulses */
+@media (prefers-reduced-motion: reduce) {
+    .project-card.project-card--featured::before,
+    .badge--featured,
+    .badge--new,
+    .featured-info h3 {
+        animation: none !important;
+    }
+
+    [data-spotlight]::after {
+        display: none;
+    }
+}
+
+/* Touch devices: keep static (no spotlight follow) */
+@media (hover: none) and (pointer: coarse) {
+    [data-spotlight]::after {
+        display: none;
+    }
+}

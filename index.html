@@ -249,8 +249,73 @@
         <section id="portfolio" class="section">
             <div class="container reveal">
                 <h2 class="section-title">Featured Projects</h2>
+
+                <!-- Featured project: HealthMate (bento + animated border) -->
+                <article class="project-card project-card--featured reveal stagger-1" data-spotlight>
+                    <div class="featured-glow" aria-hidden="true"></div>
+                    <div class="featured-grid">
+                        <div class="featured-media">
+                            <div class="project-image project-image--featured">
+                                <img src="assets/projects/healthmate.svg" alt="HealthMate Microservices Platform Preview" loading="lazy">
+                                <div class="project-overlay">
+                                    <span class="view-project"><i class="fas fa-eye"></i> View Details</span>
+                                </div>
+                                <div class="featured-badges" aria-hidden="false">
+                                    <span class="badge badge--featured"><i class="fas fa-star"></i> Featured</span>
+                                    <span class="badge badge--new">NEW</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="project-info featured-info">
+                            <p class="project-eyebrow"><i class="fas fa-cubes"></i> Microservices · Healthcare Platform</p>
+                            <h3>HealthMate</h3>
+                            <p class="project-role">Medical Appointment, Queue, Telemedicine &amp; Payments</p>
+                            <p class="project-desc">A microservices-based healthcare platform with 9 services behind an Nginx API gateway — covering patient, doctor, admin, telemedicine, notifications, payments, and AI. Multi-role auth (Firebase Google Sign-In + JWT/Spring Security), real-time queue control via Socket.IO, Jitsi-based consultations, and Stripe PaymentIntents — all containerized and orchestrated with Docker Compose &amp; Kubernetes.</p>
+
+                            <ul class="featured-stats" aria-label="Project highlights">
+                                <li>
+                                    <span class="stat-num" data-counter="9" data-suffix="">0</span>
+                                    <span class="stat-label">Microservices</span>
+                                </li>
+                                <li>
+                                    <span class="stat-num" data-counter="1" data-suffix="">0</span>
+                                    <span class="stat-label">Nginx Gateway</span>
+                                </li>
+                                <li>
+                                    <span class="stat-num" data-counter="2" data-suffix="">0</span>
+                                    <span class="stat-label">Databases</span>
+                                </li>
+                                <li>
+                                    <span class="stat-num" data-counter="3" data-suffix="">0</span>
+                                    <span class="stat-label">Auth Roles</span>
+                                </li>
+                            </ul>
+
+                            <ul class="featured-bullets">
+                                <li><i class="fas fa-check-circle"></i> Slot-conflict checks, queue numbering, pause/resume controls</li>
+                                <li><i class="fas fa-check-circle"></i> Real-time appointment &amp; queue updates over Socket.IO</li>
+                                <li><i class="fas fa-check-circle"></i> Jitsi telemedicine + Stripe payments synced across services</li>
+                                <li><i class="fas fa-check-circle"></i> Health checks, ConfigMaps/Secrets &amp; deployment automation</li>
+                            </ul>
+
+                            <div class="tech-stack tech-stack--featured">
+                                <span>React + TS</span><span>Vite</span><span>Node.js</span><span>Express</span>
+                                <span>Java Spring Boot</span><span>MongoDB</span><span>PostgreSQL</span>
+                                <span>Socket.IO</span><span>Firebase Auth</span><span>Stripe</span>
+                                <span>Docker</span><span>Kubernetes</span><span>Nginx</span>
+                            </div>
+                            <div class="project-links">
+                                <a href="https://github.com/SahanMedhawa/HealthMate" target="_blank" rel="noopener noreferrer" class="link-btn link-btn--primary">
+                                    <i class="fab fa-github"></i> View Repository
+                                    <i class="fas fa-arrow-right link-arrow" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
                 <div class="projects-grid">
-                    <div class="project-card reveal stagger-1">
+                    <div class="project-card reveal stagger-2" data-spotlight>
                         <div class="project-image">
                             <img src="assets/projects/teamsync.svg" alt="TeamSync Dashboard Preview" loading="lazy">
                             <div class="project-overlay">
@@ -271,7 +336,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="project-card reveal stagger-2">
+                    <div class="project-card reveal stagger-3" data-spotlight>
                         <div class="project-image">
                             <img src="assets/projects/meditrack.svg" alt="MediTrack App Preview" loading="lazy">
                             <div class="project-overlay">

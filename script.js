@@ -456,6 +456,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // ===== Live character counter =====
+        const charCount = document.getElementById('charCount');
+        if (charCount) {
+            const counterEl = charCount.parentElement;
+            const max = parseInt(messageInput.getAttribute('maxlength'), 10) || 2000;
+
+            const updateCount = () => {
+                const len = messageInput.value.length;
+                charCount.textContent = len;
+                counterEl.classList.toggle('is-warning', len >= max * 0.85 && len < max);
+                counterEl.classList.toggle('is-danger',  len >= max);
+            };
+
+            messageInput.addEventListener('input', updateCount);
+            messageInput.addEventListener('change', updateCount);
+            updateCount();
+        }
+
         contactForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -546,7 +564,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Reset form
                     contactForm.reset();
-                    
+
+                    // Reset live char counter, if present
+                    const cc = document.getElementById('charCount');
+                    if (cc) {
+                        cc.textContent = '0';
+                        if (cc.parentElement) {
+                            cc.parentElement.classList.remove('is-warning', 'is-danger');
+                        }
+                    }
+
                     // Reset timestamp for next submission
                     if (formTimestamp) formTimestamp.value = Date.now().toString();
                 } else {
@@ -598,8 +625,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', highlightNav);
 
     // ========== Card Tilt Effect ==========
-    // Exclude the featured project card — it has its own animated conic border + spotlight.
-    const cards = document.querySelectorAll('.service-card, .project-card:not(.project-card--featured)');
+    const cards = document.querySelectorAll('.service-card, .project-card');
     const aboutCards = document.querySelectorAll('.education-card, .skills-card');
     
     // Full tilt for service and project cards
@@ -663,6 +689,257 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCounter();
     }
 
+    // ========== Project Details Modal ==========
+    const projectsData = {
+        healthmate: {
+            title: 'HealthMate',
+            role: 'Microservices Healthcare Platform',
+            image: 'assets/projects/healthmate.svg',
+            imageAlt: 'HealthMate Microservices Platform Preview',
+            featured: true,
+            description: 'A microservices-based healthcare platform with 9 services behind an Nginx API gateway covering patient, doctor, admin, telemedicine, notification, payment, and AI modules. Multi-role authentication (Firebase Google Sign-In for patients, JWT-based auth across services, Spring Security on the Java service), real-time queue control via Socket.IO, Jitsi telemedicine, and Stripe PaymentIntents — all containerized and orchestrated with Docker Compose and Kubernetes.',
+            stats: [
+                { num: '9',  label: 'Microservices' },
+                { num: '1',  label: 'Nginx Gateway' },
+                { num: '9',  label: 'Databases' },
+                { num: '3',  label: 'Auth Roles' }
+            ],
+            highlights: [
+                'Slot-conflict checks, queue numbering, pause/resume controls',
+                'Real-time appointment & queue updates over Socket.IO',
+                'Jitsi telemedicine sessions (create / join / status history)',
+                'Stripe PaymentIntent flows with cross-service status sync',
+                'Health checks, ConfigMaps/Secrets & deployment automation'
+            ],
+            tech: ['React + TS', 'Vite', 'Node.js', 'Express', 'Java Spring Boot', 'MongoDB', 'PostgreSQL', 'Socket.IO', 'Firebase Auth', 'Stripe', 'Docker', 'Kubernetes', 'Nginx'],
+            links: [
+                { type: 'repo', url: 'https://github.com/SahanMedhawa/HealthMate', label: 'View Repository', icon: 'fab fa-github' }
+            ]
+        },
+        crosslink: {
+            title: 'CrossLink',
+            role: 'Cross-Sector Collaboration Platform',
+            image: 'assets/projects/crosslink.svg',
+            imageAlt: 'CrossLink Collaboration Platform Preview',
+            description: 'A full-stack collaboration platform connecting NGOs, Volunteers, and Corporates with role-based dashboards for project management, volunteer coordination, corporate proposals, funding/resource pledges, and CSR news aggregation. Includes a deterministic skill-overlap + Haversine matchmaking engine, real-time Socket.IO rooms, and integrations with the UN SDG API, NewsAPI, Cloudinary, and Nodemailer.',
+            stats: [
+                { num: '3',   label: 'User Roles' },
+                { num: '17',  label: 'UN SDGs' },
+                { num: '50+', label: 'API Endpoints' },
+                { num: '2',   label: 'Cloud Hosts' }
+            ],
+            highlights: [
+                'Multi-role JWT auth with role-restricted middleware (NGO / Volunteer / Corporate)',
+                'Helmet, express-rate-limit on auth, mongo-sanitize against NoSQL injection',
+                'Skill-overlap + Haversine matchmaking with email notifications via Nodemailer',
+                'Real-time updates via Socket.IO rooms (user, role & project scopes)',
+                'UN SDG API, NewsAPI (with graceful fallback), Cloudinary uploads & Leaflet maps',
+                'Playwright E2E + Artillery load tests; Render (backend) + Vercel (frontend) deploys'
+            ],
+            tech: ['React 19', 'Vite', 'Node.js', 'Express', 'MongoDB', 'Mongoose', 'Socket.IO', 'JWT', 'Redux Toolkit', 'Tailwind CSS', 'MUI', 'Leaflet', 'Recharts', 'Cloudinary', 'Nodemailer', 'Playwright', 'Artillery', 'Render', 'Vercel'],
+            links: [
+                { type: 'demo', url: 'https://cross-link-rust.vercel.app/',    label: 'Live Demo',       icon: 'fas fa-external-link-alt', primary: true },
+                { type: 'repo', url: 'https://github.com/SahanMedhawa/CrossLink', label: 'View Repository', icon: 'fab fa-github' }
+            ]
+        },
+        teamsync: {
+            title: 'TeamSync',
+            role: 'Team Collaboration & Employee Evaluation System',
+            image: 'assets/projects/teamsync.svg',
+            imageAlt: 'TeamSync Dashboard Preview',
+            description: 'A comprehensive MERN-stack web application for task management and employee evaluation. Features centralized task tracking, auto-escalation rules, role-based access control with JWT authentication, and real-time notifications so teams can collaborate and managers can run evaluation cycles in one place.',
+            highlights: [
+                'Centralized task tracking across teams and projects',
+                'Auto-escalation rules for overdue or stalled tasks',
+                'Role-based access control (RBAC) with JWT authentication',
+                'Real-time notifications and updates via Socket.IO',
+                'Employee evaluation workflows for periodic performance reviews'
+            ],
+            tech: ['React', 'Node.js', 'Express', 'MongoDB', 'Mongoose', 'JWT', 'Socket.IO', 'REST API'],
+            links: [
+                { type: 'repo', url: 'https://github.com/SahanMedhawa/TeamSync', label: 'View Repository', icon: 'fab fa-github' }
+            ]
+        },
+        meditrack: {
+            title: 'MediTrack',
+            role: 'Smart Clinic Appointment & Queue Management',
+            image: 'assets/projects/meditrack.svg',
+            imageAlt: 'MediTrack App Preview',
+            description: 'Digitalizes appointment booking and live queue management for outpatient clinics. Patients can register and book slots, staff get live queue updates and a backend dashboard, and the project follows an Agile Scrum workflow with iterative sprint deliverables.',
+            highlights: [
+                'Patient registration and online appointment booking',
+                'Live queue updates for both patients and clinic staff',
+                'RESTful backend APIs with role-based dashboards',
+                'Agile Scrum delivery with iterative sprints and demos'
+            ],
+            tech: ['React', 'Node.js', 'Express', 'MongoDB', 'REST API', 'Agile Scrum'],
+            links: [
+                { type: 'repo', url: 'https://github.com/SahanMedhawa/MediTrack', label: 'View Repository', icon: 'fab fa-github' }
+            ]
+        }
+    };
+
+    const modal = document.getElementById('projectModal');
+
+    if (modal) {
+        const modalImage      = document.getElementById('modalImage');
+        const modalPill       = document.getElementById('modalPill');
+        const modalRole       = document.getElementById('modalRole');
+        const modalTitle      = document.getElementById('modalTitle');
+        const modalDesc       = document.getElementById('modalDesc');
+        const modalStats      = document.getElementById('modalStats');
+        const modalHighlightsHeading = document.getElementById('modalHighlightsHeading');
+        const modalHighlights = document.getElementById('modalHighlights');
+        const modalTech       = document.getElementById('modalTech');
+        const modalActions    = document.getElementById('modalActions');
+        const modalCloseBtn   = modal.querySelector('.project-modal__close');
+        const modalBody       = modal.querySelector('.project-modal__body');
+
+        let lastFocusedTrigger = null;
+
+        function fillStats(stats) {
+            modalStats.innerHTML = '';
+            if (!stats || !stats.length) {
+                modalStats.hidden = true;
+                return;
+            }
+            stats.forEach(s => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="stat-num">${s.num}</span><span class="stat-label">${s.label}</span>`;
+                modalStats.appendChild(li);
+            });
+            modalStats.hidden = false;
+        }
+
+        function fillHighlights(highlights) {
+            modalHighlights.innerHTML = '';
+            if (!highlights || !highlights.length) {
+                modalHighlights.hidden = true;
+                modalHighlightsHeading.hidden = true;
+                return;
+            }
+            highlights.forEach(text => {
+                const li = document.createElement('li');
+                li.textContent = text;
+                modalHighlights.appendChild(li);
+            });
+            modalHighlights.hidden = false;
+            modalHighlightsHeading.hidden = false;
+        }
+
+        function fillTech(tech) {
+            modalTech.innerHTML = '';
+            (tech || []).forEach(t => {
+                const span = document.createElement('span');
+                span.textContent = t;
+                modalTech.appendChild(span);
+            });
+        }
+
+        function fillActions(links) {
+            modalActions.innerHTML = '';
+            (links || []).forEach((link, idx) => {
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                const isPrimary = link.primary === true || (idx === 0 && link.primary !== false);
+                a.className = 'btn-link ' + (isPrimary ? 'is-primary' : 'is-secondary');
+                a.innerHTML = `<i class="${link.icon || 'fas fa-link'}" aria-hidden="true"></i> ${link.label}`;
+                modalActions.appendChild(a);
+            });
+        }
+
+        function openModal(projectId, trigger) {
+            const data = projectsData[projectId];
+            if (!data) return;
+
+            lastFocusedTrigger = trigger || document.activeElement;
+
+            modalImage.src = data.image;
+            modalImage.alt = data.imageAlt || data.title + ' preview';
+            modalPill.hidden = !data.featured;
+            modalRole.textContent = data.role || '';
+            modalTitle.textContent = data.title;
+            modalDesc.textContent = data.description || '';
+
+            fillStats(data.stats);
+            fillHighlights(data.highlights);
+            fillTech(data.tech);
+            fillActions(data.links);
+
+            modal.hidden = false;
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('modal-open');
+            if (modalBody) modalBody.scrollTop = 0;
+
+            // Focus the close button after the open animation kicks in
+            setTimeout(() => modalCloseBtn && modalCloseBtn.focus(), 50);
+        }
+
+        function closeModal() {
+            if (modal.hidden) return;
+            modal.hidden = true;
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+            if (lastFocusedTrigger && typeof lastFocusedTrigger.focus === 'function') {
+                lastFocusedTrigger.focus();
+            }
+        }
+
+        // Open via any [data-modal-trigger="<id>"] element
+        document.querySelectorAll('[data-modal-trigger]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openModal(btn.getAttribute('data-modal-trigger'), btn);
+            });
+        });
+
+        // Also open by clicking anywhere on the project card image area (but
+        // never on the footer link buttons)
+        document.querySelectorAll('.project-card[data-project]').forEach(card => {
+            const projectId = card.getAttribute('data-project');
+            const imageArea = card.querySelector('.project-image');
+            if (!imageArea) return;
+            imageArea.style.cursor = 'pointer';
+            imageArea.addEventListener('click', (e) => {
+                if (e.target.closest('a')) return; // never hijack actual links
+                openModal(projectId, card.querySelector('[data-modal-trigger]') || card);
+            });
+        });
+
+        // Close on backdrop / X
+        modal.querySelectorAll('[data-modal-close]').forEach(el => {
+            el.addEventListener('click', closeModal);
+        });
+
+        // Close on Escape & basic focus trap
+        document.addEventListener('keydown', (e) => {
+            if (modal.hidden) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeModal();
+                return;
+            }
+            if (e.key === 'Tab') {
+                const focusable = modal.querySelectorAll(
+                    'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                );
+                if (!focusable.length) return;
+                const first = focusable[0];
+                const last  = focusable[focusable.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        });
+    }
+
     // ========== Spotlight Cursor (mouse-following glow on cards) ==========
     const spotlightCards = document.querySelectorAll('[data-spotlight]');
     const isFinePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -687,66 +964,6 @@ document.addEventListener('DOMContentLoaded', () => {
             card.addEventListener('mouseleave', () => {
                 card.style.setProperty('--mx', '50%');
                 card.style.setProperty('--my', '50%');
-            });
-        });
-    }
-
-    // ========== Animated Stats Counters (HealthMate featured card) ==========
-    const counters = document.querySelectorAll('.stat-num[data-counter]');
-
-    function animateNumber(element, target, duration = 1200) {
-        const suffix = element.getAttribute('data-suffix') || '';
-        const start = performance.now();
-
-        function tick(now) {
-            const elapsed = now - start;
-            const progress = Math.min(elapsed / duration, 1);
-            // easeOutCubic
-            const eased = 1 - Math.pow(1 - progress, 3);
-            const value = Math.round(target * eased);
-            element.textContent = value + suffix;
-            if (progress < 1) {
-                requestAnimationFrame(tick);
-            } else {
-                element.textContent = target + suffix;
-            }
-        }
-
-        requestAnimationFrame(tick);
-    }
-
-    if (counters.length) {
-        const counterObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const target = parseInt(entry.target.getAttribute('data-counter'), 10) || 0;
-                    if (reducedMotion) {
-                        const suffix = entry.target.getAttribute('data-suffix') || '';
-                        entry.target.textContent = target + suffix;
-                    } else {
-                        animateNumber(entry.target, target);
-                    }
-                    counterObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.4 });
-
-        counters.forEach(c => counterObserver.observe(c));
-    }
-
-    // ========== Magnetic primary link on featured card ==========
-    const magneticTargets = document.querySelectorAll('.link-btn--primary');
-
-    if (isFinePointer && !reducedMotion) {
-        magneticTargets.forEach(el => {
-            el.addEventListener('mousemove', (e) => {
-                const rect = el.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                el.style.transform = `translate(${x * 0.18}px, ${y * 0.25}px)`;
-            });
-            el.addEventListener('mouseleave', () => {
-                el.style.transform = '';
             });
         });
     }
